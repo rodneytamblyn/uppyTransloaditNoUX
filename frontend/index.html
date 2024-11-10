@@ -230,12 +230,7 @@
                         params: auth.params,
                         signature: auth.signature,
                         waitForEncoding: true,
-                        assemblyOptions: {
-                            fields: {
-                                path: 'uploads',
-                                region: 'ap-southeast-2'
-                            }
-                        },
+                        assemblyOptions: window.assemblyOptions, 
                         // Configure TUS through Transloadit plugin
                         tusOptions: {
                             limit: 1,

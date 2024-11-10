@@ -2,8 +2,10 @@ const express = require('express')
 const crypto = require('crypto')
 const path = require('path')
 require('dotenv').config()
+const fs = require('fs').promises;
 
 const app = express()
+
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
 app.use(express.json())
 app.use(express.static(path.join(__dirname, '../frontend')))
@@ -131,6 +133,32 @@ app.post('/assembly-status', (req, res) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'))
 })
+
+app.get('/', async (req, res) => {
+    try {
+        let html = await fs.readFile(path.join(__dirname, '../frontend/index.html'), 'utf8');
+        
+        const config = {
+            assemblyOptions: {
+                fields: {
+                    path: 'uploads',
+                    region: 'ap-southeast-2'
+                }
+            }
+        };
+        
+        // Insert config into HTML
+        html = html.replace(
+            '</head>',
+            `<script>const assemblyOptions = ${JSON.stringify(config.assemblyOptions)};</script></head>`
+        );
+        
+        res.send(html);
+    } catch (error) {
+        console.error('Error serving HTML:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
