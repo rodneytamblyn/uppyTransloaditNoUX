@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <link rel="icon" href="data:,">
+    <script src="https://releases.transloadit.com/uppy/v3.0.1/uppy.min.js"></script>
+    <style>
+        .upload-controls {
+            margin: 20px 0;
+        }
+
+        .upload-controls button {
+            margin-right: 10px;
+            padding: 8px 16px;
+        }
+
+        .upload-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #progress {
+            margin-top: 10px;
+        }
+
+        #preview {
+            margin-top: 20px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        #file-list {
+            margin: 10px 0;
+        }
+
+        #debug {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        #paste-area {
+            min-height: 100px;
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        #paste-area:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .paste-instructions {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="upload-controls">
+        <button id="select-button">Select Images</button>
+        <button id="upload-button" disabled>Upload</button>
+        <button id="pause-button" disabled>Pause</button>
+        <button id="resume-button" disabled>Resume</button>
+    </div>
+    <div id="file-list"></div>
+    <div id="progress"></div>
+    <div id="preview"></div>
+    <div id="debug"></div>
+    <div id="paste-area" contenteditable="true">
+        <span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>
+      </div>
+    <script>
+        let uppy = null;
+
+        function setupUppyEventListeners() {
+            const uploadButton = document.getElementById('upload-button');
+            const pauseButton = document.getElementById('pause-button');
+            const resumeButton = document.getElementById('resume-button');
+            const progressElement = document.getElementById('progress');
+            const fileListElement = document.getElementById('file-list');
+            const debugElement = document.getElementById('debug');
+
+            uppy.on('file-added', (file) => {
+                uploadButton.disabled = false;
+                fileListElement.textContent = `Selected: ${file.name}`;
+            });
+
+            uppy.on('file-removed', (file) => {
+                if (uppy.getFiles().length === 0) {
+                    uploadButton.disabled = true;
+                    fileListElement.textContent = '';
+                }
+            });
+
+            uploadButton.addEventListener('click', () => {
+                uppy.upload();
+            });
+
+            uppy.on('upload-progress', (file, progress) => {
+                const percentage = Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100);
+                progressElement.textContent = `${file.name}: ${percentage}% uploaded`;
+            });
+
+            uppy.on('transloadit:upload', (stepName, progress) => {
+                console.log(`Upload progress for ${stepName}:`, progress);
+                progressElement.textContent = `Uploading: ${Math.floor(progress.percentage)}%`;
+            });
+
+            uppy.on('transloadit:assembly-created', (assembly) => {
+                console.log('Assembly created:', assembly.assembly_id);
+                console.log('Assembly URL:', assembly.assembly_url);
+                progressElement.textContent = `Assembly created, ID: ${assembly.assembly_id}`;
+            });
+
+            uppy.on('transloadit:assembly-executing', (assembly) => {
+                progressElement.textContent = 'Processing images...';
+            });
+
+            uppy.on('transloadit:result', (stepName, result) => {
+                console.log(`Result for ${stepName}:`, result);
+                progressElement.textContent = `Processing ${stepName}...`;
+            });
+
+            uppy.on('transloadit:complete', (assembly) => {
+                console.log('Transloadit assembly complete:', assembly);
+
+                const results = assembly.results;
+                let successMessage = 'Upload complete! Files stored:';
+
+                const versions = ['store_original', 'store_thumbnail', 'store_medium', 'store_webp'];
+                versions.forEach(version => {
+                    if (results[version] && results[version].length > 0) {
+                        successMessage += `\n${version}: ${results[version].length} files`;
+                    }
+                });
+
+                progressElement.textContent = successMessage;
+                uploadButton.disabled = true;
+                pauseButton.disabled = true;
+                resumeButton.disabled = true;
+                fileListElement.textContent = '';
+
+                 // Reset the image preview in the contenteditable field
+                const pasteArea = document.getElementById('paste-area');
+                pasteArea.innerHTML = '<span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>';
+                const preview = document.getElementById('preview');
+                preview.innerHTML = '';
+
+            });
+
+            uppy.on('upload-error', (file, error, response) => {
+                console.error('Upload error:', error);
+                const errorDetails = `Upload error:\n${error.message}\n\nFull error:\n${JSON.stringify(error, null, 2)}`;
+                debugElement.textContent = errorDetails;
+                progressElement.innerHTML = `<div class="error">Upload failed: ${error.message}</div>`;
+                uploadButton.disabled = true;
+                pauseButton.disabled = true;
+                resumeButton.disabled = true;
+            });
+
+            uppy.on('error', (error) => {
+                console.error('General error:', error);
+                debugElement.textContent = `Error: ${error.message}`;
+            });
+
+            uppy.on('upload-start', () => {
+                uploadButton.disabled = true;
+                pauseButton.disabled = false;
+                resumeButton.disabled = true;
+            });
+
+            uppy.on('upload-pause', (fileID, isPaused) => {
+                pauseButton.disabled = isPaused;
+                resumeButton.disabled = !isPaused;
+                progressElement.textContent += ' (Paused)';
+            });
+
+            pauseButton.addEventListener('click', () => {
+                uppy.pauseAll();
+            });
+
+            resumeButton.addEventListener('click', () => {
+                uppy.resumeAll();
+                progressElement.textContent = progressElement.textContent.replace(' (Paused)', '');
+            });
+        }
+
+        (async () => {
+            try {
+                const serviceUrl = `${window.location.origin}/transloadit-signature`;
+
+                const response = await fetch(serviceUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const auth = await response.json();
+                console.log('Auth params:', auth.params);
+
+                uppy = new Uppy.Uppy({
+                    debug: true,
+                    restrictions: {
+                        allowedFileTypes: ['image/*']
+                    },
+                    autoProceed: false
+                })
+                    .use(Uppy.Transloadit, {
+                        params: auth.params,
+                        signature: auth.signature,
+                        waitForEncoding: true,
+                        assemblyOptions: {
+                            fields: {
+                                path: 'uploads',
+                                region: 'ap-southeast-2'
+                            }
+                        },
+                        // Configure TUS through Transloadit plugin
+                        tusOptions: {
+                            limit: 1,
+                            retryDelays: [0, 1000, 3000, 5000],
+                            chunkSize: 1 * 1024 * 1024 // 1MB chunks
+                        }
+                    })
+                    .use(Uppy.FileInput, {
+                        target: '#select-button',
+                        pretty: true,
+                        inputName: 'images'
+                    });
+                setupUppyEventListeners();
+
+            } catch (error) {
+                console.error('Failed to initialize Uppy:', error);
+                document.getElementById('progress').innerHTML =
+                    `<div class="error">Failed to initialize uploader: ${error.message}</div>`;
+            }
+
+            function setupPasteListener() {
+    const pasteArea = document.getElementById('paste-area');
+    const uploadButton = document.getElementById('upload-button');
+
+    pasteArea.addEventListener('paste', (e) => {
+        e.preventDefault(); // Prevent default paste behavior
+
+        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+
+        for (const item of items) {
+            if (item.type.indexOf('image') === 0) {
+                const blob = item.getAsFile();
+                const timestamp = new Date().getTime();
+
+                // Create a File object from the blob
+                const file = new File([blob], `pasted-image-${timestamp}.png`, {
+                    type: blob.type
+                });
+
+                // Add to Uppy
+                try {
+                    uppy.addFile({
+                        name: file.name,
+                        type: file.type,
+                        data: file,
+                        source: 'Paste',
+                        isRemote: false
+                    });
+
+                    // Clear paste area instructions
+                    pasteArea.innerHTML = `<strong>Image added:</strong> ${file.name}`;
+
+                    // Preview pasted image
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const preview = document.getElementById('preview');
+                        preview.innerHTML = `<img src="${e.target.result}" style="max-width: 300px; margin-top: 10px;">`;
+                    };
+                    reader.readAsDataURL(file);
+
+                    // Enable the upload button
+                    uploadButton.disabled = false;
+
+                } catch (error) {
+                    console.error('Error adding pasted file:', error);
+                    pasteArea.innerHTML = `<span style="color: red;">Error adding image: ${error.message}</span>`;
+                }
+            }
+        }
+    });
+
+    // Clear instructions when focused
+    pasteArea.addEventListener('focus', () => {
+        if (pasteArea.querySelector('.paste-instructions')) {
+            pasteArea.innerHTML = '';
+        }
+    });
+
+    // Restore instructions when empty and blurred
+    pasteArea.addEventListener('blur', () => {
+        if (pasteArea.innerHTML.trim() === '') {
+            pasteArea.innerHTML = '<span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>';
+        }
+    });
+}
+            // Call after Uppy initialization
+            setupPasteListener();
+        })();
+    </script>
+</body>
+
+</html>
