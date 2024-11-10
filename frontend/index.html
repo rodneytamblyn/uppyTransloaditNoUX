@@ -47,6 +47,7 @@
             font-family: monospace;
             white-space: pre-wrap;
         }
+
         #paste-area {
             min-height: 100px;
             border: 2px dashed #ccc;
@@ -80,7 +81,8 @@
     <div id="debug"></div>
     <div id="paste-area" contenteditable="true">
         <span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>
-      </div>
+    </div>
+
     <script>
         let uppy = null;
 
@@ -152,12 +154,11 @@
                 resumeButton.disabled = true;
                 fileListElement.textContent = '';
 
-                 // Reset the image preview in the contenteditable field
+                // Reset the image preview in the contenteditable field
                 const pasteArea = document.getElementById('paste-area');
                 pasteArea.innerHTML = '<span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>';
                 const preview = document.getElementById('preview');
                 preview.innerHTML = '';
-
             });
 
             uppy.on('upload-error', (file, error, response) => {
@@ -187,13 +188,16 @@
                 progressElement.textContent += ' (Paused)';
             });
 
+            uppy.on('upload-resume', () => {
+                progressElement.textContent = progressElement.textContent.replace(' (Paused)', '');
+            });
+
             pauseButton.addEventListener('click', () => {
                 uppy.pauseAll();
             });
 
             resumeButton.addEventListener('click', () => {
                 uppy.resumeAll();
-                progressElement.textContent = progressElement.textContent.replace(' (Paused)', '');
             });
         }
 
@@ -218,7 +222,7 @@
                 uppy = new Uppy.Uppy({
                     debug: true,
                     restrictions: {
-                        allowedFileTypes: ['image/*']
+                        allowedFileTypes: ['image/*', 'video/*']
                     },
                     autoProceed: false
                 })
@@ -253,70 +257,95 @@
             }
 
             function setupPasteListener() {
-    const pasteArea = document.getElementById('paste-area');
-    const uploadButton = document.getElementById('upload-button');
+                const pasteArea = document.getElementById('paste-area');
+                const uploadButton = document.getElementById('upload-button');
 
-    pasteArea.addEventListener('paste', (e) => {
-        e.preventDefault(); // Prevent default paste behavior
+                pasteArea.addEventListener('paste', (e) => {
+                    e.preventDefault(); // Prevent default paste behavior
 
-        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
 
-        for (const item of items) {
-            if (item.type.indexOf('image') === 0) {
-                const blob = item.getAsFile();
-                const timestamp = new Date().getTime();
+                    for (const item of items) {
+                        if (item.type.indexOf('image') === 0) {
+                            const blob = item.getAsFile();
+                            const timestamp = new Date().getTime();
 
-                // Create a File object from the blob
-                const file = new File([blob], `pasted-image-${timestamp}.png`, {
-                    type: blob.type
+                            // Create a File object from the blob
+                            const file = new File([blob], `pasted-image-${timestamp}.png`, {
+                                type: blob.type
+                            });
+
+                            // Add to Uppy if it's ready
+                            if (uppy) {
+                                try {
+                                    uppy.addFile({
+                                        name: file.name,
+                                        type: file.type,
+                                        data: file,
+                                        source: 'Paste',
+                                        isRemote: false
+                                    });
+
+                                    // Clear paste area instructions
+                                    pasteArea.innerHTML = `<strong>Image added:</strong> ${file.name}`;
+
+                                    // Preview pasted image
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => {
+                                        const preview = document.getElementById('preview');
+                                        preview.innerHTML = `<img src="${e.target.result}" style="max-width: 300px; margin-top: 10px;">`;
+                                    };
+                                    reader.readAsDataURL(file);
+
+                                    // Enable the upload button
+                                    uploadButton.disabled = false;
+                                } catch (error) {
+                                    console.error('Error adding pasted file:', error);
+                                    pasteArea.innerHTML = `<span style="color: red;">Error adding image: ${error.message}</span>`;
+                                }
+                            } else {
+                                console.error('Uppy is not initialized yet, unable to add pasted file.');
+                            }
+                        }
+                    }
                 });
 
-                // Add to Uppy
-                try {
-                    uppy.addFile({
-                        name: file.name,
-                        type: file.type,
-                        data: file,
-                        source: 'Paste',
-                        isRemote: false
-                    });
+                // Clear instructions when focused
+                pasteArea.addEventListener('focus', () => {
+                    if (pasteArea.querySelector('.paste-instructions')) {
+                        pasteArea.innerHTML = '';
+                    }
+                });
 
-                    // Clear paste area instructions
-                    pasteArea.innerHTML = `<strong>Image added:</strong> ${file.name}`;
-
-                    // Preview pasted image
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const preview = document.getElementById('preview');
-                        preview.innerHTML = `<img src="${e.target.result}" style="max-width: 300px; margin-top: 10px;">`;
-                    };
-                    reader.readAsDataURL(file);
-
-                    // Enable the upload button
-                    uploadButton.disabled = false;
-
-                } catch (error) {
-                    console.error('Error adding pasted file:', error);
-                    pasteArea.innerHTML = `<span style="color: red;">Error adding image: ${error.message}</span>`;
-                }
+                // Restore instructions when empty and blurred
+                pasteArea.addEventListener('blur', () => {
+                    if (pasteArea.innerHTML.trim() === '') {
+                        pasteArea.innerHTML = '<span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>';
+                    }
+                });
             }
-        }
-    });
 
-    // Clear instructions when focused
-    pasteArea.addEventListener('focus', () => {
-        if (pasteArea.querySelector('.paste-instructions')) {
-            pasteArea.innerHTML = '';
-        }
-    });
+            function updateButtonState() {
+                const isUploading = uppy.getState().files && Object.keys(uppy.getState().files).some((fileID) => {
+                    return uppy.getFile(fileID).progress.uploadComplete !== true;
+                });
 
-    // Restore instructions when empty and blurred
-    pasteArea.addEventListener('blur', () => {
-        if (pasteArea.innerHTML.trim() === '') {
-            pasteArea.innerHTML = '<span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>';
-        }
-    });
-}
+                const isPaused = uppy.getState().files && Object.keys(uppy.getState().files).some((fileID) => {
+                    return uppy.getFile(fileID).progress.uploadStarted && !uppy.getFile(fileID).progress.uploadComplete;
+                });
+
+                document.getElementById('upload-button').disabled = !isUploading;
+                document.getElementById('pause-button').disabled = !isUploading || isPaused;
+                document.getElementById('resume-button').disabled = !isPaused;
+            }
+
+            uppy.on('upload-progress', updateButtonState);
+            uppy.on('upload-pause', updateButtonState);
+            uppy.on('upload-resume', updateButtonState);
+            uppy.on('upload-success', updateButtonState);
+            uppy.on('upload-error', updateButtonState);
+            uppy.on('complete', updateButtonState);
+
             // Call after Uppy initialization
             setupPasteListener();
         })();

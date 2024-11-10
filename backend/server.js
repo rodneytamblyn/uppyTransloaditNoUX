@@ -30,7 +30,9 @@ app.post('/transloadit-signature', (req, res) => {
         },
         template_id: 'ob3-wasabi-2024',
         notify_url: `${EXTERNAL_URL}/assembly-status`,
-        notify_logs: true
+        notify_logs: true,
+        tus_uploads: true, // Enable TUS resumable uploads
+        tus_chunk_size: 5 * 1024 * 1024 // 5MB chunk size
     }
 
     const signature = crypto
