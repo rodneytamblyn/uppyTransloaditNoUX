@@ -1,0 +1,130 @@
+{
+    "auth": {
+      "expires": "${auth.expires}"
+    },
+    "template_id": "ob3-reconciled-2024",
+    "steps": {
+      "import": {
+        "use": ":original",
+        "robot": "/file/filter"
+      },
+      "only_audio_file": {
+        "use": "import",
+        "robot": "/file/filter",
+        "accepts": [
+          [
+            "${file.meta.audio_bitrate}",
+            "!=",
+            ""
+          ],
+          [
+            "${file.meta.video_bitrate}",
+            "=",
+            ""
+          ]
+        ],
+        "condition_type": "and"
+      },
+      "real_video_file": {
+        "use": "import",
+        "robot": "/file/filter",
+        "accepts": [
+          [
+            "${file.meta.video_bitrate}",
+            "!=",
+            ""
+          ],
+          [
+            "${file.mime}",
+            "regex",
+            "video"
+          ]
+        ],
+        "condition_type": "and"
+      },
+      "video": {
+        "use": "real_video_file",
+        "robot": "/video/encode",
+        "ffmpeg_stack": "v6.0.0",
+        "ffmpeg": {
+          "af": "aresample=async=1"
+        },
+        "preset": "ipad"
+      },
+      "video/thumb": {
+        "use": "video",
+        "robot": "/video/thumbs",
+        "ffmpeg_stack": "v6.0.0",
+        "ignore_errors": true,
+        "count": 4,
+        "width": 640
+      },
+      "audio": {
+        "use": "only_audio_file",
+        "robot": "/audio/encode",
+        "ffmpeg_stack": "v6.0.0",
+        "preset": "aac"
+      },
+      "image/med": {
+        "use": "import",
+        "robot": "/image/resize",
+        "imagemagick_stack": "v3.0.1",
+        "colorspace": "sRGB",
+        "width": 640,
+        "height": 480,
+        "format": "jpg",
+        "zoom": false
+      },
+      "optimizedimage": {
+        "robot": "/image/optimize",
+        "use": "image/med"
+      },
+      "store_original": {
+        "robot": "/wasabi/store",
+        "use": [
+          "video",
+          "optimizedimage"
+        ],
+        "path": "${fields.path}/original/${file.basename}_${file.md5}.${file.ext}",
+        "bucket": "${fields.bucket}",
+        "bucket_region": "${fields.region}",
+        "acl": "private",
+        "credentials": "wasabi_creds"
+      },
+      "store_thumbnail": {
+        "robot": "/wasabi/store",
+        "use": [
+          "video/thumb",
+          "optimizedimage"
+        ],
+        "path": "${fields.path}/thumbnails/${file.basename}_${file.md5}_thumb.${file.ext}",
+        "bucket": "${fields.bucket}",
+        "bucket_region": "${fields.region}",
+        "acl": "private",
+        "credentials": "wasabi_creds"
+      },
+      "store_audio": {
+        "robot": "/wasabi/store",
+        "use": "audio",
+        "path": "${fields.path}/audio/${file.basename}_${file.md5}.${file.ext}",
+        "bucket": "${fields.bucket}",
+        "bucket_region": "${fields.region}",
+        "acl": "private",
+        "credentials": "wasabi_creds"
+      },
+      "store_video": {
+        "robot": "/wasabi/store",
+        "use": "video",
+        "path": "${fields.path}/video/${file.basename}_${file.md5}.mp4",
+        "bucket": "${fields.bucket}",
+        "bucket_region": "${fields.region}",
+        "acl": "private",
+        "credentials": "wasabi_creds"
+      }
+    },
+    "fields": {
+      "path": "uploads",
+      "bucket": "syd-ob3uploads-2024",
+      "region": "ap-southeast-2"
+    }
+  }
