@@ -10,6 +10,44 @@ body {
     background: #f5f7fa;
 }
 
+.header-gradient {
+    background: linear-gradient(135deg, #2275d7 0%, #1d4ed8 100%);
+    padding: 60px 0 80px;
+    margin-bottom: -40px;
+}
+
+.header-content {
+    text-align: center;
+    color: white;
+}
+
+.header-content h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+
+.header-content p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.main-content {
+    position: relative;
+    margin-top: -40px;
+}
+
+.uploader-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -56,18 +94,24 @@ body {
     margin-top: 20px;
 }
 
-.simple-uploader {
+.upload-section {
     flex: 1;
-    min-width: 300px;
+    min-width: 0; /* Prevents flex items from overflowing */
+}
+
+.simple-uploader {
     background: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 #drag-drop-area {
-    flex: 2;
-    min-width: 400px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
 }
 
 /* Buttons and Controls */
@@ -257,9 +301,14 @@ body {
 }
 
 /* Responsive Design */
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .upload-container {
         flex-direction: column;
+    }
+
+    .upload-section {
+        width: 100%;
     }
 
     .simple-uploader, #drag-drop-area {
@@ -267,3 +316,11 @@ body {
         min-width: unset;
     }
 }
+
+.section-title {
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+

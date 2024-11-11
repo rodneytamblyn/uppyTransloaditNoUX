@@ -9,6 +9,14 @@
     <link href="assets/css/styles.css" rel="stylesheet">
 </head>
 <body>
+    <header class="header-gradient">
+        <div class="container">
+            <div class="header-content">
+                <h1>Uppy Transloadit Demo</h1>
+                <p> Upload files to Transloadit - using your own UX or Uppy Dashboard</p>
+            </div>
+        </div>
+    </header>
     <!-- GitHub Ribbon -->
     <a href="https://github.com/rodneytamblyn/uppyTransloaditNoUX" class="github-corner" aria-label="View source on GitHub">
         <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
@@ -28,23 +36,29 @@
         </header>
 
         <div class="upload-container">
-            <div class="simple-uploader">
-                <h2 class="section-title">Uppy Upload (HTML UX)</h2>
-                <div class="upload-controls">
-                    <button id="select-button" class="button button-primary">Select Images</button>
-                    <button id="upload-button" class="button button-primary" disabled>Upload</button>
-                    <button id="pause-button" class="button button-secondary" disabled>Pause</button>
-                    <button id="resume-button" class="button button-secondary" disabled>Resume</button>
+            <div class="upload-section">
+                <div class="simple-uploader">
+                    <h2 class="section-title">Design your own upload UX</h2>
+                    <div class="upload-controls">
+                        <button id="select-button" class="button button-primary">Select Images</button>
+                        <button id="upload-button" class="button button-primary" disabled>Upload</button>
+                        <button id="pause-button" class="button button-secondary" disabled>Pause</button>
+                        <button id="resume-button" class="button button-secondary" disabled>Resume</button>
+                    </div>
+                    <div id="file-list"></div>
+                    <div id="progress"></div>
+                    <div id="preview"></div>
+                    <div id="paste-area" contenteditable="true">
+                        <span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>
+                    </div>
+                    <div id="debug"></div>
                 </div>
-                <div id="file-list"></div>
-                <div id="progress"></div>
-                <div id="preview"></div>
-                <div id="paste-area" contenteditable="true">
-                    <span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>
-                </div>
-                <div id="debug"></div>
             </div>
-            <div id="drag-drop-area"><h2 class="section-title">Uppy Dashboard</h2></div>
+            
+            <div class="upload-section">
+                <h2 class="section-title">Uppy Dashboard</h2>
+                <div id="drag-drop-area"></div>
+            </div>
         </div>
 
         <div class="documentation-links">
@@ -57,7 +71,7 @@
 
         <div class="contributing">
             <h3>Contributing</h3>
-            <p>We welcome contributions! Please see our <a href="https://github.com/rodneytamblyn/uppyTransloaditNoUX/blob/main/CONTRIBUTING.md" target="_blank">contributing guidelines</a> for details on how to get started.</p>
+            <p>We welcome contributions! Please see our <a href="https://github.com/rodneytamblyn/uppyTransloaditNoUX/blob/main/contributing.md" target="_blank">contributing guidelines</a> for details on how to get started.</p>
         </div>
 
         <footer class="footer">

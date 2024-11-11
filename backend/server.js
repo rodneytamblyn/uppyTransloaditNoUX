@@ -13,6 +13,9 @@ app.use(express.static(path.join(__dirname, '../frontend')))
 const TRANSLOADIT_AUTH_KEY = process.env.TRANSLOADIT_AUTH_KEY
 const TRANSLOADIT_AUTH_SECRET = process.env.TRANSLOADIT_AUTH_SECRET
 const EXTERNAL_URL = process.env.EXTERNAL_URL || 'https://ee6f-161-29-13-173.ngrok-free.app'
+const REGION = process.env.REGION || 'ap-southeast-2'
+const STORAGEPATH = process.env.STORAGEPATH || ''
+const TRANSLOADIT_TEMPLATE_ID=process.env.TRANSLOADITTEMPLATEID
 
 app.post('/transloadit-signature', (req, res) => {
     const utcDateString = (ms) => {
@@ -30,7 +33,7 @@ app.post('/transloadit-signature', (req, res) => {
             key: TRANSLOADIT_AUTH_KEY,
             expires
         },
-        template_id: 'ob3-wasabi-2024',
+        template_id: `${TRANSLOADIT_TEMPLATE_ID}`,
         notify_url: `${EXTERNAL_URL}/assembly-status`,
         notify_logs: true,
         tus_uploads: true, // Enable TUS resumable uploads
@@ -141,8 +144,8 @@ app.get('/', async (req, res) => {
         const config = {
             assemblyOptions: {
                 fields: {
-                    path: 'uploads',
-                    region: 'ap-southeast-2'
+                    path: `${STORAGEPATH}`,
+                    region: `${REGION}`
                 }
             }
         };
