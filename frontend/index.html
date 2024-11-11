@@ -1,350 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Upload</title>
+    <title>Uppy Transloadit demo</title>
     <link rel="icon" href="data:,">
-    <script src="https://releases.transloadit.com/uppy/v3.0.1/uppy.min.js"></script>
-    <style>
-        .upload-controls {
-            margin: 20px 0;
-        }
-
-        .upload-controls button {
-            margin-right: 10px;
-            padding: 8px 16px;
-        }
-
-        .upload-controls button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        #progress {
-            margin-top: 10px;
-        }
-
-        #preview {
-            margin-top: 20px;
-        }
-
-        .error {
-            color: red;
-            margin-top: 10px;
-        }
-
-        #file-list {
-            margin: 10px 0;
-        }
-
-        #debug {
-            margin-top: 20px;
-            padding: 10px;
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            font-family: monospace;
-            white-space: pre-wrap;
-        }
-
-        #paste-area {
-            min-height: 100px;
-            border: 2px dashed #ccc;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-
-        #paste-area:focus {
-            outline: none;
-            border-color: #666;
-        }
-
-        .paste-instructions {
-            color: #666;
-            font-style: italic;
-        }
-    </style>
+    <link href="https://releases.transloadit.com/uppy/v3.0.1/uppy.min.css" rel="stylesheet">
+    <link href="assets/css/styles.css" rel="stylesheet">
 </head>
-
 <body>
-    <div class="upload-controls">
-        <button id="select-button">Select Images</button>
-        <button id="upload-button" disabled>Upload</button>
-        <button id="pause-button" disabled>Pause</button>
-        <button id="resume-button" disabled>Resume</button>
+    <!-- GitHub Ribbon -->
+    <a href="https://github.com/rodneytamblyn/uppyTransloaditNoUX" class="github-corner" aria-label="View source on GitHub">
+        <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+            <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+            <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+            <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+        </svg>
+    </a>
+
+    <div class="container">
+        <header class="header">
+            <div class="badges">
+                <a href="https://github.com/rodneytamblyn/uppyTransloaditNoUX/blob/main/LICENSE" target="_blank">
+                    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
+                </a>
+            </div>
+        </header>
+
+        <div class="upload-container">
+            <div class="simple-uploader">
+                <h2 class="section-title">Uppy Upload (HTML UX)</h2>
+                <div class="upload-controls">
+                    <button id="select-button" class="button button-primary">Select Images</button>
+                    <button id="upload-button" class="button button-primary" disabled>Upload</button>
+                    <button id="pause-button" class="button button-secondary" disabled>Pause</button>
+                    <button id="resume-button" class="button button-secondary" disabled>Resume</button>
+                </div>
+                <div id="file-list"></div>
+                <div id="progress"></div>
+                <div id="preview"></div>
+                <div id="paste-area" contenteditable="true">
+                    <span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>
+                </div>
+                <div id="debug"></div>
+            </div>
+            <div id="drag-drop-area"><h2 class="section-title">Uppy Dashboard</h2></div>
+        </div>
+
+        <div class="documentation-links">
+            <h3>Documentation</h3>
+            <ul>
+                <li><a href="https://uppy.io/docs/" target="_blank">Uppy Documentation</a></li>
+                <li><a href="https://transloadit.com/docs/" target="_blank">Transloadit Documentation</a></li>
+            </ul>
+        </div>
+
+        <div class="contributing">
+            <h3>Contributing</h3>
+            <p>We welcome contributions! Please see our <a href="https://github.com/rodneytamblyn/uppyTransloaditNoUX/blob/main/CONTRIBUTING.md" target="_blank">contributing guidelines</a> for details on how to get started.</p>
+        </div>
+
+        <footer class="footer">
+            <p>Uppy Transloadit demo 2024 | <a href="https://github.com/rodneytamblyn/uppyTransloaditNoUX" target="_blank" rel="noopener noreferrer">Open source on GitHub</a></p>
+        </footer>
     </div>
-    <div id="file-list"></div>
-    <div id="progress"></div>
-    <div id="preview"></div>
-    <div id="debug"></div>
-    <div id="paste-area" contenteditable="true">
-        <span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>
-    </div>
 
-    <script>
-        let uppy = null;
-
-        function setupUppyEventListeners() {
-            const uploadButton = document.getElementById('upload-button');
-            const pauseButton = document.getElementById('pause-button');
-            const resumeButton = document.getElementById('resume-button');
-            const progressElement = document.getElementById('progress');
-            const fileListElement = document.getElementById('file-list');
-            const debugElement = document.getElementById('debug');
-
-            uppy.on('file-added', (file) => {
-                uploadButton.disabled = false;
-                fileListElement.textContent = `Selected: ${file.name}`;
-            });
-
-            uppy.on('file-removed', (file) => {
-                if (uppy.getFiles().length === 0) {
-                    uploadButton.disabled = true;
-                    fileListElement.textContent = '';
-                }
-            });
-
-            uploadButton.addEventListener('click', () => {
-                uppy.upload();
-            });
-
-            uppy.on('upload-progress', (file, progress) => {
-                const percentage = Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100);
-                progressElement.textContent = `${file.name}: ${percentage}% uploaded`;
-            });
-
-            uppy.on('transloadit:upload', (stepName, progress) => {
-                console.log(`Upload progress for ${stepName}:`, progress);
-                progressElement.textContent = `Uploading: ${Math.floor(progress.percentage)}%`;
-            });
-
-            uppy.on('transloadit:assembly-created', (assembly) => {
-                console.log('Assembly created:', assembly.assembly_id);
-                console.log('Assembly URL:', assembly.assembly_url);
-                progressElement.textContent = `Assembly created, ID: ${assembly.assembly_id}`;
-            });
-
-            uppy.on('transloadit:assembly-executing', (assembly) => {
-                progressElement.textContent = 'Processing images...';
-            });
-
-            uppy.on('transloadit:result', (stepName, result) => {
-                console.log(`Result for ${stepName}:`, result);
-                progressElement.textContent = `Processing ${stepName}...`;
-            });
-
-            uppy.on('transloadit:complete', (assembly) => {
-                console.log('Transloadit assembly complete:', assembly);
-
-                const results = assembly.results;
-                let successMessage = 'Upload complete! Files stored:';
-
-                const versions = ['store_original', 'store_thumbnail', 'store_medium', 'store_webp'];
-                versions.forEach(version => {
-                    if (results[version] && results[version].length > 0) {
-                        successMessage += `\n${version}: ${results[version].length} files`;
-                    }
-                });
-
-                progressElement.textContent = successMessage;
-                uploadButton.disabled = true;
-                pauseButton.disabled = true;
-                resumeButton.disabled = true;
-                fileListElement.textContent = '';
-
-                // Reset the image preview in the contenteditable field
-                const pasteArea = document.getElementById('paste-area');
-                pasteArea.innerHTML = '<span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>';
-                const preview = document.getElementById('preview');
-                preview.innerHTML = '';
-            });
-
-            uppy.on('upload-error', (file, error, response) => {
-                console.error('Upload error:', error);
-                const errorDetails = `Upload error:\n${error.message}\n\nFull error:\n${JSON.stringify(error, null, 2)}`;
-                debugElement.textContent = errorDetails;
-                progressElement.innerHTML = `<div class="error">Upload failed: ${error.message}</div>`;
-                uploadButton.disabled = true;
-                pauseButton.disabled = true;
-                resumeButton.disabled = true;
-            });
-
-            uppy.on('error', (error) => {
-                console.error('General error:', error);
-                debugElement.textContent = `Error: ${error.message}`;
-            });
-
-            uppy.on('upload-start', () => {
-                uploadButton.disabled = true;
-                pauseButton.disabled = false;
-                resumeButton.disabled = true;
-            });
-
-            uppy.on('upload-pause', (fileID, isPaused) => {
-                pauseButton.disabled = isPaused;
-                resumeButton.disabled = !isPaused;
-                progressElement.textContent += ' (Paused)';
-            });
-
-            uppy.on('upload-resume', () => {
-                progressElement.textContent = progressElement.textContent.replace(' (Paused)', '');
-            });
-
-            pauseButton.addEventListener('click', () => {
-                uppy.pauseAll();
-            });
-
-            resumeButton.addEventListener('click', () => {
-                uppy.resumeAll();
-            });
-        }
-
-        (async () => {
-            try {
-                const serviceUrl = `${window.location.origin}/transloadit-signature`;
-
-                const response = await fetch(serviceUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const auth = await response.json();
-                console.log('Auth params:', auth.params);
-
-                uppy = new Uppy.Uppy({
-                    debug: true,
-                    restrictions: {
-                        allowedFileTypes: ['image/*', 'video/*']
-                    },
-                    autoProceed: false
-                })
-                    .use(Uppy.Transloadit, {
-                        params: auth.params,
-                        signature: auth.signature,
-                        waitForEncoding: true,
-                        assemblyOptions: window.assemblyOptions, 
-                        // Configure TUS through Transloadit plugin
-                        tusOptions: {
-                            limit: 1,
-                            retryDelays: [0, 1000, 3000, 5000],
-                            chunkSize: 1 * 1024 * 1024 // 1MB chunks
-                        }
-                    })
-                    .use(Uppy.FileInput, {
-                        target: '#select-button',
-                        pretty: true,
-                        inputName: 'images'
-                    });
-                setupUppyEventListeners();
-
-            } catch (error) {
-                console.error('Failed to initialize Uppy:', error);
-                document.getElementById('progress').innerHTML =
-                    `<div class="error">Failed to initialize uploader: ${error.message}</div>`;
-            }
-
-            function setupPasteListener() {
-                const pasteArea = document.getElementById('paste-area');
-                const uploadButton = document.getElementById('upload-button');
-
-                pasteArea.addEventListener('paste', (e) => {
-                    e.preventDefault(); // Prevent default paste behavior
-
-                    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-
-                    for (const item of items) {
-                        if (item.type.indexOf('image') === 0) {
-                            const blob = item.getAsFile();
-                            const timestamp = new Date().getTime();
-
-                            // Create a File object from the blob
-                            const file = new File([blob], `pasted-image-${timestamp}.png`, {
-                                type: blob.type
-                            });
-
-                            // Add to Uppy if it's ready
-                            if (uppy) {
-                                try {
-                                    uppy.addFile({
-                                        name: file.name,
-                                        type: file.type,
-                                        data: file,
-                                        source: 'Paste',
-                                        isRemote: false
-                                    });
-
-                                    // Clear paste area instructions
-                                    pasteArea.innerHTML = `<strong>Image added:</strong> ${file.name}`;
-
-                                    // Preview pasted image
-                                    const reader = new FileReader();
-                                    reader.onload = (e) => {
-                                        const preview = document.getElementById('preview');
-                                        preview.innerHTML = `<img src="${e.target.result}" style="max-width: 300px; margin-top: 10px;">`;
-                                    };
-                                    reader.readAsDataURL(file);
-
-                                    // Enable the upload button
-                                    uploadButton.disabled = false;
-                                } catch (error) {
-                                    console.error('Error adding pasted file:', error);
-                                    pasteArea.innerHTML = `<span style="color: red;">Error adding image: ${error.message}</span>`;
-                                }
-                            } else {
-                                console.error('Uppy is not initialized yet, unable to add pasted file.');
-                            }
-                        }
-                    }
-                });
-
-                // Clear instructions when focused
-                pasteArea.addEventListener('focus', () => {
-                    if (pasteArea.querySelector('.paste-instructions')) {
-                        pasteArea.innerHTML = '';
-                    }
-                });
-
-                // Restore instructions when empty and blurred
-                pasteArea.addEventListener('blur', () => {
-                    if (pasteArea.innerHTML.trim() === '') {
-                        pasteArea.innerHTML = '<span class="paste-instructions">Paste image here (Ctrl+V or ⌘+V)</span>';
-                    }
-                });
-            }
-
-            function updateButtonState() {
-                const isUploading = uppy.getState().files && Object.keys(uppy.getState().files).some((fileID) => {
-                    return uppy.getFile(fileID).progress.uploadComplete !== true;
-                });
-
-                const isPaused = uppy.getState().files && Object.keys(uppy.getState().files).some((fileID) => {
-                    return uppy.getFile(fileID).progress.uploadStarted && !uppy.getFile(fileID).progress.uploadComplete;
-                });
-
-                document.getElementById('upload-button').disabled = !isUploading;
-                document.getElementById('pause-button').disabled = !isUploading || isPaused;
-                document.getElementById('resume-button').disabled = !isPaused;
-            }
-
-            uppy.on('upload-progress', updateButtonState);
-            uppy.on('upload-pause', updateButtonState);
-            uppy.on('upload-resume', updateButtonState);
-            uppy.on('upload-success', updateButtonState);
-            uppy.on('upload-error', updateButtonState);
-            uppy.on('complete', updateButtonState);
-
-            // Call after Uppy initialization
-            setupPasteListener();
-        })();
-    </script>
+    <script src="https://releases.transloadit.com/uppy/v3.0.1/uppy.min.js"></script>
+    <script src="assets/js/uploader.js"></script>
 </body>
-
 </html>

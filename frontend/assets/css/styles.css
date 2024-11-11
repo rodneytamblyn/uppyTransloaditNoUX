@@ -1,0 +1,269 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    padding: 20px;
+    background: #f5f7fa;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header and Badges */
+.header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.badges {
+    margin: 15px 0;
+}
+
+.badges img {
+    margin: 0 5px;
+}
+
+/* GitHub Corner */
+.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+}
+
+@keyframes octocat-wave {
+    0%, 100% { transform: rotate(0) }
+    20%, 60% { transform: rotate(-25deg) }
+    40%, 80% { transform: rotate(10deg) }
+}
+
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none;
+    }
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+    }
+}
+
+/* Upload Container */
+.upload-container {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.simple-uploader {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#drag-drop-area {
+    flex: 2;
+    min-width: 400px;
+}
+
+/* Buttons and Controls */
+.upload-controls {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.button-primary {
+    background: #2275d7;
+    color: white;
+}
+
+.button-primary:hover {
+    background: #1b5eb3;
+}
+
+.button-secondary {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.button-secondary:hover {
+    background: #e2e8f0;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Progress and Preview */
+#progress {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #475569;
+}
+
+#preview {
+    margin-top: 20px;
+}
+
+.error {
+    color: #dc2626;
+    margin-top: 10px;
+    padding: 10px;
+    background: #fef2f2;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#file-list {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #475569;
+}
+
+/* Debug Area */
+#debug {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+}
+
+/* Paste Area */
+#paste-area {
+    min-height: 100px;
+    border: 2px dashed #cbd5e1;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#paste-area:focus {
+    outline: none;
+    border-color: #2275d7;
+    background: #f8fafc;
+}
+
+.paste-instructions {
+    color: #64748b;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 15px;
+}
+
+/* Documentation Links */
+.documentation-links {
+    margin-top: 40px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.documentation-links h3 {
+    color: #1e293b;
+    margin-bottom: 15px;
+}
+
+.documentation-links ul {
+    list-style: none;
+}
+
+.documentation-links li {
+    margin: 10px 0;
+}
+
+.documentation-links a {
+    color: #2275d7;
+    text-decoration: none;
+}
+
+.documentation-links a:hover {
+    text-decoration: underline;
+}
+
+/* Contributing Section */
+.contributing {
+    margin-top: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.contributing h3 {
+    color: #1e293b;
+    margin-bottom: 15px;
+}
+
+.contributing p {
+    color: #475569;
+    line-height: 1.5;
+}
+
+.contributing a {
+    color: #2275d7;
+    text-decoration: none;
+}
+
+.contributing a:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+    margin-top: 40px;
+    padding: 20px 0;
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.footer a {
+    color: #2275d7;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .upload-container {
+        flex-direction: column;
+    }
+
+    .simple-uploader, #drag-drop-area {
+        width: 100%;
+        min-width: unset;
+    }
+}
